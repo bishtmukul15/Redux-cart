@@ -11,23 +11,16 @@ function App() {
   const cart = useSelector((state) => state.cart);
   const notification = useSelector((state) => state.ui.notification);
 
-  // 🟣 Fetch cart data once on reload
-  useEffect(() => {
-    dispatch(fetchCartData());
-  }, [dispatch]);
-
-  // 🟢 Send updated cart data whenever cart changes (except first load)
   useEffect(() => {
     if (isInitial) {
       isInitial = false;
       return;
     }
-
     dispatch(sendCartData(cart));
   }, [cart, dispatch]);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <>
       {notification && (
         <Notification
           status={notification.status}
@@ -36,7 +29,7 @@ function App() {
         />
       )}
       <Cart />
-    </div>
+    </>
   );
 }
 
