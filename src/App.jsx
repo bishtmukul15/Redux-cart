@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import Cart from "./component/Cart";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCartData, sendCartData } from "./store/cart-actions";
 import Notification from "../src/component/Notification";
-import { sendCartData, fetchCartData } from "./store/cart-actions";
+import Cart from "../src/component/Cart";
 
-const App = () => {
+let isInitial = true;
+
+function App() {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const notification = useSelector((state) => state.ui.notification);
-  const [isInitial, setIsInitial] = useState(true);
 
-  // Fetch cart data on mount
+  // 🟣 Fetch cart data once on reload
   useEffect(() => {
     dispatch(fetchCartData());
   }, [dispatch]);
 
-  // Send cart data when it changes
+  // 🟢 Send updated cart data whenever cart changes (except first load)
   useEffect(() => {
     if (isInitial) {
-      setIsInitial(false);
+      isInitial = false;
       return;
     }
+
     dispatch(sendCartData(cart));
   }, [cart, dispatch]);
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       {notification && (
         <Notification
           status={notification.status}
@@ -36,6 +38,6 @@ const App = () => {
       <Cart />
     </div>
   );
-};
+}
 
 export default App;

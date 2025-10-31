@@ -3,17 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const uiSlice = createSlice({
   name: "ui",
-  initialState: {
-    cartIsVisible: false,
-    notification: null, // Added for async UI feedback
-  },
+  initialState: { cartIsVisible: false, notification: null },
   reducers: {
     toggle(state) {
       state.cartIsVisible = !state.cartIsVisible;
     },
     showNotification(state, action) {
       state.notification = {
-        status: action.payload.status, // 'pending' | 'success' | 'error'
+        status: action.payload.status,
         title: action.payload.title,
         message: action.payload.message,
       };
@@ -22,4 +19,4 @@ const uiSlice = createSlice({
 });
 
 export const uiActions = uiSlice.actions;
-export default uiSlice;
+export default uiSlice.reducer;

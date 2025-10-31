@@ -2,7 +2,10 @@
 import { uiActions } from "./toggle";
 import { cartActions } from "./cart-slice";
 
-// 🟢 Send cart data to backend
+const FIREBASE_URL =
+  "https://react-http-1c2c7-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json";
+
+// 🟢 Send cart data to Firebase
 export const sendCartData = (cart) => {
   return async (dispatch) => {
     dispatch(
@@ -14,21 +17,14 @@ export const sendCartData = (cart) => {
     );
 
     const sendRequest = async () => {
-      // ✅ Use the full Firebase REST endpoint with .json
-      const response = await fetch(
-        "https://react-http-1c2c7-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json",
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            items: cart.items,
-            totalQuantity: cart.totalQuantity,
-            totalAmount: cart.totalAmount,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(FIREBASE_URL, {
+        method: "PUT",
+        body: JSON.stringify({
+          items: cart.items,
+          totalQuantity: cart.totalQuantity,
+          totalAmount: cart.totalAmount,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Sending cart data failed!");
@@ -37,6 +33,7 @@ export const sendCartData = (cart) => {
 
     try {
       await sendRequest();
+
       dispatch(
         uiActions.showNotification({
           status: "success",
@@ -56,14 +53,19 @@ export const sendCartData = (cart) => {
   };
 };
 
-// 🟣 Fetch cart data from backend
+// 🟣 Fetch cart data from Firebase on reload
 export const fetchCartData = () => {
   return async (dispatch) => {
+    dispatch(
+      uiActions.showNotification({
+        status: "pending",
+        title: "Loading...",
+        message: "Fetching cart data...",
+      })
+    );
+
     const fetchData = async () => {
-      // ✅ Use the same endpoint with .json
-      const response = await fetch(
-        "https://react-http-1c2c7-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json"
-      );
+      const response = await fetch(FIREBASE_URL);
 
       if (!response.ok) {
         throw new Error("Fetching cart data failed!");
@@ -75,11 +77,20 @@ export const fetchCartData = () => {
 
     try {
       const cartData = await fetchData();
+
       dispatch(
         cartActions.replaceCart({
-          items: cartData.items || [],
-          totalQuantity: cartData.totalQuantity || 0,
-          totalAmount: cartData.totalAmount || 0,
+          items: cartData?.items || [],
+          totalQuantity: cartData?.totalQuantity || 0,
+          totalAmount: cartData?.totalAmount || 0,
+        })
+      );
+
+      dispatch(
+        uiActions.showNotification({
+          status: "success",
+          title: "Success!",
+          message: "Fetched cart data successfully!",
         })
       );
     } catch (error) {

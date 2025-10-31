@@ -9,8 +9,15 @@ const cartSlice = createSlice({
     totalAmount: 0,
   },
   reducers: {
+    // ✅ Add this:
+    replaceCart(state, action) {
+      state.items = action.payload.items || [];
+      state.totalQuantity = action.payload.totalQuantity || 0;
+      state.totalAmount = action.payload.totalAmount || 0;
+    },
+
     addItemToCart(state, action) {
-      const newItem = action.payload; // { id, title, price }
+      const newItem = action.payload;
       const existingItem = state.items.find((item) => item.id === newItem.id);
 
       state.totalQuantity++;
@@ -49,4 +56,4 @@ const cartSlice = createSlice({
 });
 
 export const cartActions = cartSlice.actions;
-export default cartSlice;
+export default cartSlice.reducer; // ✅ also fix this export
